@@ -47,8 +47,19 @@ endif
 	
 .PHONY: run-client
 run-client:	### Runs RMI client
+ifndef JAR_NAME
+override JAR_NAME = "empty"
+endif
+ifndef PACKAGE_NAME
+	$(error Missing PACKAGE_NAME variable. Usage: make run-server JAR_NAME (optional) PACKAGE_NAME SERVICE_NAME)
+endif
+ifndef SERVICE_NAME
+	$(error Missing SERVICE_NAME variable. Usage: make run-server JAR_NAME (optional) PACKAGE_NAME SERVICE_NAME)
+endif
+
 	@docker run -it --rm --name=rmi_run_client --network=distributed_systems_docker_network \
 	-v "$(PWD)/bin:/app/bin" \
 	-v "$(PWD)/security-policies:/app/security-policies" \
 	-v "$(PWD)/client:/app" \
-	rmi-client bash -c "./run-client.sh"
+	rmi-client bash -c "./run-client.sh $(JAR_NAME) $(PACKAGE_NAME) $(SERVICE_NAME)"
+
