@@ -13,6 +13,7 @@ endif
 
 .PHONY: setup-environment
 setup-environment:	### Creates required docker network
+	$(info Going to create distributed_systems_docker_network docker network...)
 	@docker network create distributed_systems_docker_network
 
 .PHONY: build-all
@@ -28,11 +29,21 @@ build-client:	### Build RMI Client image
 	
 .PHONY: run-server
 run-server:	### Runs RMI server
+ifndef JAR_NAME
+override JAR_NAME = "empty"
+endif
+ifndef PACKAGE_NAME
+	$(error Missing PACKAGE_NAME variable. Usage: make run-server JAR_NAME (optional) PACKAGE_NAME SERVICE_NAME)
+endif
+ifndef SERVICE_NAME
+	$(error Missing SERVICE_NAME variable. Usage: make run-server JAR_NAME (optional) PACKAGE_NAME SERVICE_NAME)
+endif
+
 	@docker run -it --rm -p 1099:1099 --name=rmi_run_server --network=distributed_systems_docker_network \
         -v "$(PWD)/bin:/app/bin" \
         -v "$(PWD)/security-policies:/app/security-policies" \
         -v "$(PWD)/server:/app" \
-        rmi-server bash -c "./run-server.sh"
+        rmi-server bash -c "./run-server.sh $(JAR_NAME) $(PACKAGE_NAME) $(SERVICE_NAME)"
 	
 .PHONY: run-client
 run-client:	### Runs RMI client
