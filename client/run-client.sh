@@ -4,7 +4,7 @@
 #@REM Author: Rui S. Moreira
 #@REM Date: 20/02/2014
 #@REM Adapted by: Rafael Almeida
-#@REM Date: 18/02/2020
+#@REM Date: 21/02/2020
 #@REM ************************************************************************************
 
 cd /app/bin/classes
