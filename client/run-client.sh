@@ -24,7 +24,7 @@ if [[ "$1" != "empty" ]] && [[ "$2" != "empty" ]]; then
 fi
 
 CMD+="-Djava.security.policy=file:////app/security-policies/serverAllPermition.policy "
-CMD+="-D$packageName.servicename=$3 "
-CMD+="$2 rmi_run_server 1099 $3"
+CMD+="-D$packageName.servicename=$4 "
+CMD+="$3 rmi_run_server 1099 $4"
 
 $CMD
