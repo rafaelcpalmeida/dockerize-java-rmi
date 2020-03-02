@@ -26,40 +26,52 @@ build-server:	### Build RMI Server image
 .PHONY: build-client
 build-client:	### Build RMI Client image
 	@docker build client/ -t rmi-client
+
+.PHONY: run-web-server
+run-web-server: ### Runs Python 3 http.server on port 8000
+	@docker run -it --rm -p 8000:8000 --name=rmi_python_server --network=distributed_systems_docker_network \
+	--workdir="/app/bin" -v "$(PWD)/bin:/app/bin" \
+	python:3.8 bash -c "python -m http.server 8000"
 	
 .PHONY: run-server
 run-server:	### Runs RMI server
+ifndef JAR_LOCATION
+override JAR_LOCATION = "empty"
+endif
 ifndef JAR_NAME
 override JAR_NAME = "empty"
 endif
 ifndef PACKAGE_NAME
-	$(error Missing PACKAGE_NAME variable. Usage: make run-server JAR_NAME (optional) PACKAGE_NAME SERVICE_NAME)
+	$(error Missing PACKAGE_NAME variable. Usage: make run-server JAR_LOCATION (optional) JAR_NAME (optional) PACKAGE_NAME SERVICE_NAME)
 endif
 ifndef SERVICE_NAME
-	$(error Missing SERVICE_NAME variable. Usage: make run-server JAR_NAME (optional) PACKAGE_NAME SERVICE_NAME)
+	$(error Missing SERVICE_NAME variable. Usage: make run-server JAR_LOCATION (optional) JAR_NAME (optional) PACKAGE_NAME SERVICE_NAME)
 endif
 
 	@docker run -it --rm -p 1099:1099 --name=rmi_run_server --network=distributed_systems_docker_network \
         -v "$(PWD)/bin:/app/bin" \
         -v "$(PWD)/security-policies:/app/security-policies" \
         -v "$(PWD)/server:/app" \
-        rmi-server bash -c "./run-server.sh $(JAR_NAME) $(PACKAGE_NAME) $(SERVICE_NAME)"
+        rmi-server bash -c "./run-server.sh $(JAR_LOCATION) $(JAR_NAME) $(PACKAGE_NAME) $(SERVICE_NAME)"
 	
 .PHONY: run-client
 run-client:	### Runs RMI client
+ifndef JAR_LOCATION
+override JAR_LOCATION = "empty"
+endif
 ifndef JAR_NAME
 override JAR_NAME = "empty"
 endif
 ifndef PACKAGE_NAME
-	$(error Missing PACKAGE_NAME variable. Usage: make run-server JAR_NAME (optional) PACKAGE_NAME SERVICE_NAME)
+	$(error Missing PACKAGE_NAME variable. Usage: make run-server JAR_LOCATION (optional) JAR_NAME (optional) PACKAGE_NAME SERVICE_NAME)
 endif
 ifndef SERVICE_NAME
-	$(error Missing SERVICE_NAME variable. Usage: make run-server JAR_NAME (optional) PACKAGE_NAME SERVICE_NAME)
+	$(error Missing SERVICE_NAME variable. Usage: make run-server JAR_LOCATION (optional) JAR_NAME (optional) PACKAGE_NAME SERVICE_NAME)
 endif
 
 	@docker run -it --rm --name=rmi_run_client --network=distributed_systems_docker_network \
 	-v "$(PWD)/bin:/app/bin" \
 	-v "$(PWD)/security-policies:/app/security-policies" \
 	-v "$(PWD)/client:/app" \
-	rmi-client bash -c "./run-client.sh $(JAR_NAME) $(PACKAGE_NAME) $(SERVICE_NAME)"
+	rmi-client bash -c "./run-client.sh $(JAR_LOCATION) $(JAR_NAME) $(PACKAGE_NAME) $(SERVICE_NAME)"
 
