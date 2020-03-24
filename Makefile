@@ -53,6 +53,7 @@ endif
 
 JAR_LOCATION = "empty"
 JAR_NAME = "empty"
+$(eval INSTANCES=`docker ps | awk -v count=1 '/rmi-client/ {count++} END{print count}'`)
 .PHONY: run-client
 run-client:	### Runs RMI client
 ifndef PACKAGE_NAME
@@ -62,7 +63,7 @@ ifndef SERVICE_NAME
 	$(error Missing SERVICE_NAME variable. Usage: make run-server JAR_LOCATION (optional) JAR_NAME (optional) PACKAGE_NAME SERVICE_NAME)
 endif
 
-	@docker run -it --rm --name=rmi_run_client --network=distributed_systems_docker_network \
+	@docker run -it --rm --name=rmi_run_client_$(INSTANCES) --network=distributed_systems_docker_network \
 	-v "$(PWD)/bin:/app/bin" \
 	-v "$(PWD)/security-policies:/app/security-policies" \
 	-v "$(PWD)/client:/app" \
