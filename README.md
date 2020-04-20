@@ -10,35 +10,44 @@ Given the following folder structure:
 ├── README.md
 ├── bin
 │   ├── classes
-│   │   └── edu
-│   │       └── ufp
-│   │           └── inf
-│   │               └── sd
-│   │                   └── rmi
-│   │                       ├── helloworld
-│   │                       │   ├── client
-│   │                       │   │   └── HelloWorldClient.class
-│   │                       │   └── server
-│   │                       │       ├── HelloWorldActivatableImpl.class
-│   │                       │       ├── HelloWorldImpl.class
-│   │                       │       ├── HelloWorldRI.class
-│   │                       │       ├── HelloWorldServer.class
-│   │                       │       ├── HelloWorldSetup.class
-│   │                       │       └── ReadmeHowTo.txt
-│   │                       ├── test
-│   │                       │   ├── client
-│   │                       │   │   └── TestClient.class
-│   │                       │   └── server
-│   │                       │       ├── TestImpl.class
-│   │                       │       ├── TestRI.class
-│   │                       │       └── TestServer.class
-│   │                       └── util
-│   │                           ├── rmisetup
-│   │                           │   └── SetupContextRMI.class
-│   │                           └── threading
-│   │                               ├── ThreadPool$1.class
-│   │                               ├── ThreadPool$PoolThread.class
-│   │                               └── ThreadPool.class
+│   │   ├── amqp-client-5.9.0.jar
+│   │   ├── edu
+│   │   │   └── ufp
+│   │   │       └── inf
+│   │   │           └── sd
+│   │   │               ├── rabbitmq
+│   │   │               │   └── hello
+│   │   │               │       ├── consumer
+│   │   │               │       │   └── Consumer.class
+│   │   │               │       └── producer
+│   │   │               │           └── Producer.class
+│   │   │               └── rmi
+│   │   │                   ├── helloworld
+│   │   │                   │   ├── client
+│   │   │                   │   │   └── HelloWorldClient.class
+│   │   │                   │   └── server
+│   │   │                   │       ├── HelloWorldActivatableImpl.class
+│   │   │                   │       ├── HelloWorldImpl.class
+│   │   │                   │       ├── HelloWorldRI.class
+│   │   │                   │       ├── HelloWorldServer.class
+│   │   │                   │       ├── HelloWorldSetup.class
+│   │   │                   │       └── ReadmeHowTo.txt
+│   │   │                   ├── test
+│   │   │                   │   ├── client
+│   │   │                   │   │   └── TestClient.class
+│   │   │                   │   └── server
+│   │   │                   │       ├── TestImpl.class
+│   │   │                   │       ├── TestRI.class
+│   │   │                   │       └── TestServer.class
+│   │   │                   └── util
+│   │   │                       ├── rmisetup
+│   │   │                       │   └── SetupContextRMI.class
+│   │   │                       └── threading
+│   │   │                           ├── ThreadPool$1.class
+│   │   │                           ├── ThreadPool$PoolThread.class
+│   │   │                           └── ThreadPool.class
+│   │   ├── slf4j-api-1.7.9.jar
+│   │   └── slf4j-simple-1.7.9.jar
 │   └── jar
 ├── client
 │   ├── Dockerfile
@@ -77,6 +86,13 @@ To start `Test` application **server** you can execute:
 
 To start `Test` application **client** you can execute:
 `make run-client PACKAGE_NAME=edu.ufp.inf.sd.rmi.test.client.TestClient SERVICE_NAME=TestService`
+
+### Hello RabbitMQ example
+To start `Hello - RabbitMQ` application **consumer** you can execute:
+`make run-server PACKAGE_NAME=edu.ufp.inf.sd.rabbitmq.hello.consumer.Consumer SERVICE_NAME=rabbit`
+
+To start `Hello - RabbitMQ` application **producer** you can execute:
+`make run-server PACKAGE_NAME=edu.ufp.inf.sd.rabbitmq.hello.producer.Producer SERVICE_NAME=rabbit`
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
