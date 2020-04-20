@@ -11,7 +11,7 @@ cd /app/bin/classes
 
 packageName=$(echo $3 | sed -E 's/(.[a-zA-Z0-9_]+)$//g')
 
-CMD="java -cp .:/app/bin/classes "
+CMD="java -cp .:amqp-client-5.9.0.jar:slf4j-api-1.7.9.jar:slf4j-simple-1.7.9.jar:/app/bin/classes "
 
 if [[ "$1" != "empty" ]] && [[ "$2" != "empty" ]]; then
     if [ "$1" == "file" ]; then

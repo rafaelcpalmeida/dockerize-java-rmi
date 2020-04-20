@@ -1,5 +1,4 @@
 # <3
-# https://news.ycombinator.com/item?id=11939200
 .PHONY: help
 help:	### this screen. Keep it first target to be default
 ifeq ($(UNAME), Linux)
@@ -27,6 +26,11 @@ build-server:	### Build RMI Server image
 build-client:	### Build RMI Client image
 	@docker build client/ -t rmi-client
 
+.PHONY: run-rabbitmq-server
+run-rabbitmq-server: ### Runs RabbitMQ 3.8 server instance. Web GUI on localhost:15672
+	@docker run -it --rm -p 15672:15672 --name=rmi_rabbit_mq_server --network=distributed_systems_docker_network \
+	rabbitmq:3.8-management
+
 .PHONY: run-web-server
 run-web-server: ### Runs Python 3 http.server on port 8000
 	@docker run -it --rm -p 8000:8000 --name=rmi_python_server --network=distributed_systems_docker_network \
@@ -45,11 +49,10 @@ ifndef SERVICE_NAME
 endif
 
 	@docker run -it --rm -p 1099:1099 --name=rmi_run_server --network=distributed_systems_docker_network \
-    -v "$(PWD)/bin:/app/bin" \
-    -v "$(PWD)/security-policies:/app/security-policies" \
-    -v "$(PWD)/server:/app" \
-    rmi-server bash -c "./run-server.sh $(JAR_LOCATION) $(JAR_NAME) $(PACKAGE_NAME) $(SERVICE_NAME)"
-
+        -v "$(PWD)/bin:/app/bin" \
+        -v "$(PWD)/security-policies:/app/security-policies" \
+        -v "$(PWD)/server:/app" \
+        rmi-server bash -c "./run-server.sh $(JAR_LOCATION) $(JAR_NAME) $(PACKAGE_NAME) $(SERVICE_NAME)"
 
 JAR_LOCATION = "empty"
 JAR_NAME = "empty"
@@ -68,4 +71,3 @@ endif
 	-v "$(PWD)/security-policies:/app/security-policies" \
 	-v "$(PWD)/client:/app" \
 	rmi-client bash -c "./run-client.sh $(JAR_LOCATION) $(JAR_NAME) $(PACKAGE_NAME) $(SERVICE_NAME)"
-
