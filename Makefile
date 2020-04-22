@@ -50,6 +50,7 @@ endif
 
 	@docker run -it --rm -p 1099:1099 --name=rmi_run_server --network=distributed_systems_docker_network \
         -v "$(PWD)/bin:/app/bin" \
+        -v "$(PWD)/src:/app/src" \
         -v "$(PWD)/security-policies:/app/security-policies" \
         -v "$(PWD)/server:/app" \
         rmi-server bash -c "./run-server.sh $(JAR_LOCATION) $(JAR_NAME) $(PACKAGE_NAME) $(SERVICE_NAME)"
@@ -68,6 +69,7 @@ endif
 
 	@docker run -it --rm --name=rmi_run_client_$(INSTANCES) --network=distributed_systems_docker_network \
 	-v "$(PWD)/bin:/app/bin" \
+	-v "$(PWD)/src:/app/src" \
 	-v "$(PWD)/security-policies:/app/security-policies" \
 	-v "$(PWD)/client:/app" \
 	rmi-client bash -c "./run-client.sh $(JAR_LOCATION) $(JAR_NAME) $(PACKAGE_NAME) $(SERVICE_NAME)"
