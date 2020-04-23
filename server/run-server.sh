@@ -7,9 +7,9 @@
 #@REM Date: 21/02/2020
 #@REM ************************************************************************************
 
-mkdir -p /app/built-classes
+mkdir -p /built-classes
 
-cd /app/built-classes
+cd /built-classes
 
 cp -r /app/src/* .
 cp -r /app/bin/* .
@@ -20,7 +20,9 @@ echo "*  Compiling binaries. This may take some time... *"
 echo "***************************************************"
 echo ""
 
-javac -cp .:amqp-client-5.9.0.jar:slf4j-api-1.7.9.jar:slf4j-simple-1.7.9.jar:/app/built-classes $(find ./* | grep .java)
+rmiregistry &
+
+javac -cp .:amqp-client-5.9.0.jar:slf4j-api-1.7.9.jar:slf4j-simple-1.7.9.jar:/built-classes $(find ./* | grep .java)
 
 echo ""
 echo "***************************"
@@ -28,13 +30,11 @@ echo "*  Running application... *"
 echo "***************************"
 echo ""
 
-rmiregistry &
-
-CMD="java -cp .:amqp-client-5.9.0.jar:slf4j-api-1.7.9.jar:slf4j-simple-1.7.9.jar:/app/built-classes "
+CMD="java -cp .:amqp-client-5.9.0.jar:slf4j-api-1.7.9.jar:slf4j-simple-1.7.9.jar:/built-classes "
 
 if [[ "$1" != "empty" ]] && [[ "$2" != "empty" ]]; then
     if [ "$1" == "file" ]; then
-        CMD+="-Djava.rmi.server.codebase=file:////app/built-classes/$1.jar "
+        CMD+="-Djava.rmi.server.codebase=file:////built-classes/$1.jar "
     else
         CMD+="-Djava.rmi.server.codebase=http://$1/$2.jar "
     fi
