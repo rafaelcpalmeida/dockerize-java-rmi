@@ -72,10 +72,10 @@ To start `Test` application **client** you can execute:
 Since `RabbitMQ`-dependant applications require an instance of a `RabbitMQ` server, first, you need to run `make run-rabbitmq-server`
 
 To start `Hello - RabbitMQ` application **consumer** you can execute:
-`make run-server PACKAGE_NAME=edu.ufp.inf.sd.rabbitmq.hello.consumer.Consumer SERVICE_NAME=rabbit`
+`make run-client PACKAGE_NAME=edu.ufp.inf.sd.rabbitmq.hello.consumer.Consumer SERVICE_NAME=rabbit`
 
 To start `Hello - RabbitMQ` application **producer** you can execute:
-`make run-server PACKAGE_NAME=edu.ufp.inf.sd.rabbitmq.hello.producer.Producer SERVICE_NAME=rabbit`
+`make run-client PACKAGE_NAME=edu.ufp.inf.sd.rabbitmq.hello.producer.Producer SERVICE_NAME=rabbit`
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
