@@ -20,7 +20,14 @@ echo "*  Compiling binaries. This may take some time... *"
 echo "***************************************************"
 echo ""
 
-javac -cp .:amqp-client-5.9.0.jar:slf4j-api-1.7.9.jar:slf4j-simple-1.7.9.jar:/built-classes $(find ./* | grep .java)
+JARS="$(find ./* | grep .jar)"
+
+for JAR in $JARS
+do
+	JAR_TO_COMPILE+="$JAR:"
+done
+
+javac -cp .:$JAR_TO_COMPILE:/built-classes $(find ./* | grep .java)
 
 echo ""
 echo "***************************"
@@ -30,7 +37,7 @@ echo ""
 
 packageName=$(echo $3 | sed -E 's/(.[a-zA-Z0-9_]+)$//g')
 
-CMD="java -cp .:amqp-client-5.9.0.jar:slf4j-api-1.7.9.jar:slf4j-simple-1.7.9.jar:/built-classes "
+CMD="java -cp .:$JAR_TO_COMPILE:/built-classes "
 
 if [[ "$1" != "empty" ]] && [[ "$2" != "empty" ]]; then
     if [ "$1" == "file" ]; then
