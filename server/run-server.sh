@@ -7,6 +7,7 @@
 #@REM Date: 21/02/2020
 #@REM ************************************************************************************
 
+rm -rf /built-classes
 mkdir -p /built-classes
 
 cd /built-classes
@@ -39,16 +40,16 @@ echo ""
 
 CMD="java -cp .:$JAR_TO_COMPILE:/built-classes "
 
-if [[ "$1" != "empty" ]] && [[ "$2" != "empty" ]]; then
-    if [ "$1" == "file" ]; then
-        CMD+="-Djava.rmi.server.codebase=file:////built-classes/$1.jar "
+if [[ "${JAR_LOCATION}" != "empty" ]] && [[ "${JAR_NAME}" != "empty" ]]; then
+    if [ "${JAR_LOCATION}" == "file" ]; then
+        CMD+="-Djava.rmi.server.codebase=file:////built-classes/${JAR_LOCATION}.jar "
     else
-        CMD+="-Djava.rmi.server.codebase=http://$1/$2.jar "
+        CMD+="-Djava.rmi.server.codebase=http://${JAR_LOCATION}/${JAR_NAME}.jar "
     fi
 fi
 
 CMD+="-Djava.rmi.server.hostname=rmi_run_server "
 CMD+="-Djava.security.policy=file:////app/security-policies/serverAllPermition.policy "
-CMD+="$3 rmi_run_server 1099 $4"
+CMD+="${PACKAGE_NAME} rmi_run_server 1099 ${SERVICE_NAME}"
 
 $CMD

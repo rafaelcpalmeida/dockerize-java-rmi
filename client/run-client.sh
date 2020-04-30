@@ -7,6 +7,7 @@
 #@REM Date: 21/02/2020
 #@REM ************************************************************************************
 
+rm -rf /built-classes
 mkdir -p /built-classes
 
 cd /built-classes
@@ -35,22 +36,33 @@ echo "*  Running application... *"
 echo "***************************"
 echo ""
 
-packageName=$(echo $3 | sed -E 's/(.[a-zA-Z0-9_]+)$//g')
+packageName=$(echo ${PACKAGE_NAME} | sed -E 's/(.[a-zA-Z0-9_]+)$//g')
 
 CMD="java -cp .:$JAR_TO_COMPILE:/built-classes "
 
-if [[ "$1" != "empty" ]] && [[ "$2" != "empty" ]]; then
-    if [ "$1" == "file" ]; then
-        CMD+="-Djava.rmi.server.codebase=file:////built-classes/$1.jar "
-        CMD+="-D$packageName.codebase=file:////built-classes/$1.jar "
+if [[ "${JAR_LOCATION}" != "empty" ]] && [[ "${JAR_NAME}" != "empty" ]]; then
+    if [ "${JAR_LOCATION}" == "file" ]; then
+        CMD+="-Djava.rmi.server.codebase=file:////built-classes/${JAR_LOCATION}.jar "
+        CMD+="-D$packageName.codebase=file:////built-classes/${JAR_LOCATION}.jar "
     else
-        CMD+="-Djava.rmi.server.codebase=http://$1/$2.jar "
-        CMD+="-D$packageName.codebase=http://$1/$2.jar "
+        CMD+="-Djava.rmi.server.codebase=http://${JAR_LOCATION}/${JAR_NAME}.jar "
+        CMD+="-D$packageName.codebase=http://${JAR_LOCATION}/${JAR_NAME}.jar "
     fi
 fi
 
+attempts=0
+while ! nc -zvw3 rmi_run_server 1099; do
+  sleep 3
+  attempts=$((attempts + 1))
+
+  if [[ "$attempts" -gt "10" ]]; then
+    echo "Timeout while waiting for server to start"
+    exit 1
+  fi
+done
+
 CMD+="-Djava.security.policy=file:////app/security-policies/serverAllPermition.policy "
-CMD+="-D$packageName.servicename=$4 "
-CMD+="$3 rmi_run_server 1099 $4"
+CMD+="-D$packageName.servicename=${SERVICE_NAME} "
+CMD+="${PACKAGE_NAME} rmi_run_server 1099 ${SERVICE_NAME}"
 
 $CMD

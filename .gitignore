@@ -2,3 +2,6 @@
 
 client/built-classes/
 server/built-classes/
+
+dockerize-java-rmi.iml
+.idea
