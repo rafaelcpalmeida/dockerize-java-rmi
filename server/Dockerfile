@@ -1,9 +1,16 @@
+FROM golang:1.13
+
+ENV GOROOT=/usr/local/go
+ENV GOPATH=/go
+
+RUN apt update && \
+    apt install -y git && \
+    go get github.com/cespare/reflex
+
 FROM openjdk:8u242-jdk-buster
-
-EXPOSE 1099
-
-COPY . /app
 
 WORKDIR /app
 
-RUN chmod +x /app/*.sh
+COPY --from=0 /go/bin/reflex /usr/local/bin/reflex
+
+RUN chmod +x /usr/local/bin/reflex
