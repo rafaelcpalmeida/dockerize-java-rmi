@@ -50,16 +50,18 @@ if [[ "${JAR_LOCATION}" != "empty" ]] && [[ "${JAR_NAME}" != "empty" ]]; then
     fi
 fi
 
-attempts=0
-while ! nc -zvw3 rmi_run_server 1099; do
-  sleep 3
-  attempts=$((attempts + 1))
+if [[ "${SERVICE_NAME}" != "rabbitmq" ]]; then
+  attempts=0
+  while ! nc -zvw3 rmi_run_server 1099; do
+    sleep 3
+    attempts=$((attempts + 1))
 
-  if [[ "$attempts" -gt "10" ]]; then
-    echo "Timeout while waiting for server to start"
-    exit 1
-  fi
-done
+    if [[ "$attempts" -gt "10" ]]; then
+      echo "Timeout while waiting for server to start"
+      exit 1
+    fi
+  done
+fi
 
 CMD+="-Djava.security.policy=file:////app/security-policies/serverAllPermition.policy "
 CMD+="-D$packageName.servicename=${SERVICE_NAME} "
