@@ -10,13 +10,32 @@ else
 		$(MAKEFILE_LIST) | grep -v '@awk' | sort
 endif
 
+.PHONY: setup-environment
+setup-environment:	### Creates required docker network
+	$(info Going to create distributed_systems_docker_network docker network...)
+	@docker network create distributed_systems_docker_network
+
+.PHONY: build-all
+build-all: build-server	build-client	### Builds RMI Server and Client images
+
+.PHONY: build-server
+build-server:	### Build RMI Server image
+	@docker build server/ -t rmi-server
+
+.PHONY: build-client
+build-client:	### Build RMI Client image
+	@docker build client/ -t rmi-client
+
 .PHONY: run-rabbitmq-server
 run-rabbitmq-server: ### Runs RabbitMQ 3.8 server instance. Web GUI on localhost:15672
-	@docker-compose up rabbitmq
+	@docker run -it --rm -p 15672:15672 --name=rmi_rabbit_mq_server --network=distributed_systems_docker_network \
+	rabbitmq:3.8-management
 
 .PHONY: run-web-server
 run-web-server: ### Runs Python 3 http.server on port 8000
-	@docker-compose up webserver
+	@docker run -it --rm -p 8000:8000 --name=rmi_python_server --network=distributed_systems_docker_network \
+	--workdir="/app/bin" -v "$(PWD)/bin:/app/bin" \
+	python:3.8 bash -c "python -m http.server 8000"
 
 JAR_LOCATION = "empty"
 JAR_NAME = "empty"
@@ -28,12 +47,20 @@ endif
 ifndef SERVICE_NAME
 	$(error Missing SERVICE_NAME variable. Usage: make run-server JAR_LOCATION (optional) JAR_NAME (optional) PACKAGE_NAME SERVICE_NAME)
 endif
-
-	JAR_LOCATION=$(JAR_LOCATION) JAR_NAME=$(JAR_NAME) PACKAGE_NAME=$(PACKAGE_NAME) SERVICE_NAME=$(SERVICE_NAME) docker-compose up server
+	@docker run -it --rm -p 1099:1099 --name=rmi_run_server --network=distributed_systems_docker_network \
+        -v "$(PWD)/bin:/app/bin" \
+        -v "$(PWD)/src:/app/src" \
+        -v "$(PWD)/security-policies:/app/security-policies" \
+        -v "$(PWD)/server:/app" \
+		--env JAR_LOCATION=$(JAR_LOCATION) \
+		--env JAR_NAME=$(JAR_NAME) \
+		--env PACKAGE_NAME=$(PACKAGE_NAME) \
+		--env SERVICE_NAME=$(SERVICE_NAME) \
+        rmi-server bash -c "reflex -s -r '\.java$$' -- sh -c 'sleep 1; /app/run-server.sh'"
 
 JAR_LOCATION = "empty"
 JAR_NAME = "empty"
-$(eval INSTANCES=`docker ps | awk -v count=1 '/rmi-client/ {count++} END{print count}'`)
+INSTANCES := $(shell docker ps | awk -v count=1 '/rmi_run_client/ {count++} END{print int(count)}')
 .PHONY: run-client
 run-client:	### Runs RMI client
 ifndef PACKAGE_NAME
@@ -43,4 +70,14 @@ ifndef SERVICE_NAME
 	$(error Missing SERVICE_NAME variable. Usage: make run-server JAR_LOCATION (optional) JAR_NAME (optional) PACKAGE_NAME SERVICE_NAME)
 endif
 
-	JAR_LOCATION=$(JAR_LOCATION) JAR_NAME=$(JAR_NAME) PACKAGE_NAME=$(PACKAGE_NAME) SERVICE_NAME=$(SERVICE_NAME) docker-compose up client
+	@echo $(INSTANCES)
+	@docker run -it --rm --name=rmi_run_client_$(INSTANCES) --network=distributed_systems_docker_network \
+	-v "$(PWD)/bin:/app/bin" \
+	-v "$(PWD)/src:/app/src" \
+	-v "$(PWD)/security-policies:/app/security-policies" \
+	-v "$(PWD)/client:/app" \
+	--env JAR_LOCATION=$(JAR_LOCATION) \
+	--env JAR_NAME=$(JAR_NAME) \
+	--env PACKAGE_NAME=$(PACKAGE_NAME) \
+	--env SERVICE_NAME=$(SERVICE_NAME) \
+	rmi-client bash -c "reflex -s -r '\.java$$' /app/run-client.sh"
