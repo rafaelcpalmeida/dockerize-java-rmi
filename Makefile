@@ -60,7 +60,6 @@ endif
 
 JAR_LOCATION = "empty"
 JAR_NAME = "empty"
-INSTANCES := $(shell docker ps | awk -v count=1 '/rmi_run_client/ {count++} END{print int(count)}')
 .PHONY: run-client
 run-client:	### Runs RMI client
 ifndef PACKAGE_NAME
@@ -70,14 +69,4 @@ ifndef SERVICE_NAME
 	$(error Missing SERVICE_NAME variable. Usage: make run-server JAR_LOCATION (optional) JAR_NAME (optional) PACKAGE_NAME SERVICE_NAME)
 endif
 
-	@echo $(INSTANCES)
-	@docker run -it --rm --name=rmi_run_client_$(INSTANCES) --network=distributed_systems_docker_network \
-	-v "$(PWD)/bin:/app/bin" \
-	-v "$(PWD)/src:/app/src" \
-	-v "$(PWD)/security-policies:/app/security-policies" \
-	-v "$(PWD)/client:/app" \
-	--env JAR_LOCATION=$(JAR_LOCATION) \
-	--env JAR_NAME=$(JAR_NAME) \
-	--env PACKAGE_NAME=$(PACKAGE_NAME) \
-	--env SERVICE_NAME=$(SERVICE_NAME) \
-	rmi-client bash -c "reflex -s -r '\.java$$' /app/run-client.sh"
+	JAR_LOCATION=$(JAR_LOCATION) JAR_NAME=$(JAR_NAME) PACKAGE_NAME=$(PACKAGE_NAME) SERVICE_NAME=$(SERVICE_NAME) docker-compose run client

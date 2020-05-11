@@ -1,0 +1,80 @@
+version: "3"
+
+networks:
+  local_network:
+    driver_opts:
+      com.docker.network.bridge.name: sd_network
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.20.0.1/24
+
+services:
+  client:
+    build: ./client
+    entrypoint: reflex -s -r '\.java$$' /app/run-client.sh
+    container_name: rmi_run_client
+    environment:
+      JAR_LOCATION: ${JAR_LOCATION}
+      JAR_NAME: ${JAR_NAME}
+      PACKAGE_NAME: ${PACKAGE_NAME}
+      SERVICE_NAME: ${SERVICE_NAME}
+    working_dir: /app
+    networks:
+      local_network:
+        aliases:
+          - client
+          - rmi_client
+          - rmi_run_client
+    volumes:
+      - ./src:/app/src
+      - ./bin:/app/bin
+      - ./security-policies:/app/security-policies
+      - ./client/run-client.sh:/app/run-client.sh
+
+  server:
+    build: ./server
+    entrypoint: reflex -s -r '\.java$$' -- sh -c "sleep 1; /app/run-server.sh"
+    working_dir: /app
+    container_name: rmi_run_server
+    environment:
+      JAR_LOCATION: ${JAR_LOCATION}
+      JAR_NAME: ${JAR_NAME}
+      PACKAGE_NAME: ${PACKAGE_NAME}
+      SERVICE_NAME: ${SERVICE_NAME}
+    networks:
+      local_network:
+        ipv4_address: 172.20.0.11
+        aliases:
+          - server
+          - rmi_server
+          - rmi_run_server
+    ports:
+      - 1099:1099
+    volumes:
+      - ./src:/app/src
+      - ./bin:/app/bin
+      - ./security-policies:/app/security-policies
+      - ./server/run-server.sh:/app/run-server.sh
+
+  rabbitmq:
+    image: rabbitmq:3.8-management
+    container_name: rmi_rabbit_mq_server
+    ports:
+      - 15672:15672
+    networks:
+      local_network:
+        ipv4_address: 172.20.0.12
+
+  webserver:
+    image: python:3.8
+    entrypoint: bash -c "python -m http.server 8000"
+    container_name: rmi_python_server
+    working_dir: /app
+    ports:
+      - 8000:8000
+    volumes:
+      - ./bin:/app
+    networks:
+      local_network:
+        ipv4_address: 172.20.0.13
